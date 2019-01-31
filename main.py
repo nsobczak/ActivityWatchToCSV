@@ -4,7 +4,6 @@
 ########
 """
 
-
 #  ____________________________________________________________________________________________________
 #  Config
 
@@ -31,15 +30,15 @@ def initVariables():
     PARSER.add_argument("pathToJsonFile", type=str, help="path where to json file is on the computer")
     # optionnal
     PARSER.add_argument("-cfp", "--csvFilePath", type=str, default="", help="path where to save the new csv file, default = where json file is")
+    PARSER.add_argument("-pj", "--printJson", type=bool, default=False, help="path where to save the new csv file, default = where json file is")
+    #TODO: add printJsonFile to PARSER
 
     ARGS = PARSER.parse_args()
 
     # affichage des arguments rentres dans le log
-    # logger.info(
-    #     ":\npath to the directory where to save the downloaded website: %s\n" + \
-    #     "url of the website to download: %s \npath to the configuration file of the logger: %s\n" + \
-    #     "depth of the tree: %d\nmax size of a downloadable file: %d\nsize max of the directory where to download the website: %d\n",
-    #     ARGS.savePath, ARGS.url, ARGS.logConf, ARGS.depth, ARGS.sizeFile, ARGS.sizeDirectory)
+    print(("\npath to the file to read: {} \n" + \
+        "path where to save the csv file: {} \n" + \
+        "printJson: {} \n").format(ARGS.pathToJsonFile, ARGS.csvFilePath, ARGS.printJson))
 
     return ARGS
 
@@ -57,7 +56,7 @@ def loop(args):
     """
 
     # Creation des dossiers necessaires
-    jsonPath = args.pathToJsonFile
+    jsonR.jsonRead(args.pathToJsonFile, jsonR.Watcher.AFK, args.printJson)
 
     return 1
 

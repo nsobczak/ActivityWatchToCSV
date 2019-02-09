@@ -133,5 +133,6 @@ def handleWindowWatcher(csvFile, dataDict):
             valueDurationStr = leftPart + "," + righPart[:3]
             rows += valueDurationStr + "; "
             rows += str(timedelta(seconds=valueDuration)) + "\n"
+        rows += "\n"
 
     csvFile.write(rows)

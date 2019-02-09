@@ -8,6 +8,7 @@
 import json
 from platform import system
 from enum import Enum
+from datetime import timedelta
 
 
 # %% ____________________________________________________________________________________________________
@@ -100,9 +101,8 @@ def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=Fals
     return res
 
 
-
 def handleWindowWatcher(csvFile, dataDict):
-    columnTitleRow = "date; app; duration\n"
+    columnTitleRow = "date; app; duration(s); duration(h:m:s)\n"
     csvFile.write(columnTitleRow)
 
     sortedData = {}
@@ -131,7 +131,7 @@ def handleWindowWatcher(csvFile, dataDict):
             valueDurationStr = str(valueDuration)
             leftPart, righPart = valueDurationStr.split('.')
             valueDurationStr = leftPart + "," + righPart[:3]
-            print(valueDurationStr)
-            rows += valueDurationStr + "\n"
+            rows += valueDurationStr + "; "
+            rows += str(timedelta(seconds=valueDuration)) + "\n"
 
     csvFile.write(rows)

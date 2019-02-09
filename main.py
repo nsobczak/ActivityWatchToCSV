@@ -26,11 +26,10 @@ def initVariables():
     """
     PARSER = argparse.ArgumentParser(description='ActivityWatch json file to csv file')
     # must
-    PARSER.add_argument("pathToJsonFile", type=str, help="path where to json file is on the computer")
+    PARSER.add_argument("pathToJsonFile", type=str, help="path to json file on the computer")
     # optionnal
-    PARSER.add_argument("-cfp", "--csvFilePath", type=str, default="newGeneratedFile.csv", help="path where to save the new csv file, default = where json file is")
+    PARSER.add_argument("-cfp", "--csvFilePath", type=str, default="newGeneratedFile.csv", help="path where to save the new csv file, default = newGeneratedFile.csv")
     PARSER.add_argument("-pj", "--printJson", type=bool, default=False, help="whether to print json content or not, default = false")
-    #TODO: add printJsonFile to PARSER
 
     ARGS = PARSER.parse_args()
 

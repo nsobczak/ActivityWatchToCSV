@@ -5,7 +5,6 @@
 """
 
 # Import
-import os
 import json
 from platform import system
 from enum import Enum
@@ -21,7 +20,7 @@ class Watcher(Enum):
     WEB = 2
     WINDOW = 3
 
-#TODO: group by day
+#TODO: group by day and app
 def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=False):
     """
     Write csv formatted data into file
@@ -87,20 +86,21 @@ def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=Fals
                     print('  app: ' + str(d['data']['app']))
                     print('')
 
-            columnTitleRow = "app, duration, title, date\n"
+            columnTitleRow = "date; app; duration; title\n"
             csvFile.write(columnTitleRow)
+            rows = ""
             for d in dataDict:
-                #app
-                row = str(d['data']['app']) + ", "
-                #duration
-                row += str(d['duration']) + ", "
-                #title
-                row += str(d['data']['title']) + ", "
-                #timestamp only beginning: "2019-01-28T01:11:32.482000+00:00"
+                # timestamp only beginning: "2019-01-28T01:11:32.482000+00:00"
                 date = str(d['timestamp'])[:10]
-                row += date + "\n"
+                rows += date + "; "
+                #app
+                rows += str(d['data']['app']) + "; "
+                #duration
+                rows += str(d['duration']) + "; "
+                #title
+                rows += str(d['data']['title']) + "\n"
 
-                csvFile.write(row)
+            csvFile.write(rows)
 
         else:
             res = "failed to identify watcher type"

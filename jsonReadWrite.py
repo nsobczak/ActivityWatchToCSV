@@ -20,7 +20,7 @@ class Watcher(Enum):
     WEB = 2
     WINDOW = 3
 
-#TODO: group by day and app
+
 def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=False):
     """
     Write csv formatted data into file
@@ -56,6 +56,8 @@ def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=Fals
             # T10: 28:13.770000 + 00: 00
             # data: {'status': 'not-afk'}
 
+            res = "Watcher.AFK detected => does nothing"
+
 
         elif watcher == Watcher.WEB:
             print("watcher == Watcher.WEB")
@@ -66,44 +68,70 @@ def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=Fals
             # T18: 01:45.794000 + 00: 00
             # data: {'title': 'New Tab', 'url': 'about:blank', 'audible': False, 'tabCount': 3, 'incognito': False}
 
+            res = "Watcher.WEB detected => does nothing"
+
 
         elif watcher == Watcher.WINDOW:
             print("watcher == Watcher.WINDOW")
-            # duration: 4.017
+            # duration: 4.017 # <= in seconds
             # id: 17
             # timestamp: 2019 - 01 - 28
             # T01: 11:55.570000 + 00: 00
             # data: {'title': 'Terminal - arch@ArchDesktop:~', 'app': 'Xfce4-terminal'} # <= app is the interesting thing
 
-            if printJsonFile:
-                # check
-                for d in dataDict:
-                    print('duration: ' + str(d['duration']))
-                    print('id: ' + str(d['id']))
-                    print('timestamp: ' + str(d['timestamp']))
-                    print('data: ' + str(d['data']))
-                    print('  title: ' + str(d['data']['title']))
-                    print('  app: ' + str(d['data']['app']))
-                    print('')
+            # if printJsonFile:
+            #     # check
+            #     for d in dataDict:
+            #         print('duration: ' + str(d['duration']))
+            #         print('id: ' + str(d['id']))
+            #         print('timestamp: ' + str(d['timestamp']))
+            #         print('data: ' + str(d['data']))
+            #         print('  title: ' + str(d['data']['title']))
+            #         print('  app: ' + str(d['data']['app']))
+            #         print('')
 
-            columnTitleRow = "date; app; duration; title\n"
-            csvFile.write(columnTitleRow)
-            rows = ""
-            for d in dataDict:
-                # timestamp only beginning: "2019-01-28T01:11:32.482000+00:00"
-                date = str(d['timestamp'])[:10]
-                rows += date + "; "
-                #app
-                rows += str(d['data']['app']) + "; "
-                #duration
-                rows += str(d['duration']) + "; "
-                #title
-                rows += str(d['data']['title']) + "\n"
+            handleWindowWatcher(csvFile, dataDict)
 
-            csvFile.write(rows)
 
         else:
             res = "failed to identify watcher type"
 
     print(res)
     return res
+
+
+
+def handleWindowWatcher(csvFile, dataDict):
+    columnTitleRow = "date; app; duration\n"
+    csvFile.write(columnTitleRow)
+
+    sortedData = {}
+    for d in dataDict:
+        # timestamp only beginning: "2019-01-28T01:11:32.482000+00:00"
+        date = str(d['timestamp'])[:10]
+
+        if not (date in sortedData):
+            sortedData[date] = {}
+
+        app = str(d['data']['app'])
+        if not (app in sortedData[date]):
+            sortedData[date][app] = 0
+
+        duration = float(d['duration'])
+        sortedData[date][app] += duration
+
+    rows = ""
+    for keyDate, valueAppDict in sortedData.items():
+        for keyApp, valueDuration in valueAppDict.items():
+            # date
+            rows += keyDate + "; "
+            # app
+            rows += keyApp + "; "
+            # duration
+            valueDurationStr = str(valueDuration)
+            leftPart, righPart = valueDurationStr.split('.')
+            valueDurationStr = leftPart + "," + righPart[:3]
+            print(valueDurationStr)
+            rows += valueDurationStr + "\n"
+
+    csvFile.write(rows)

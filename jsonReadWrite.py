@@ -22,7 +22,7 @@ class Watcher(Enum):
     WINDOW = 3
 
 #TODO: group by day
-def jsonRead(path, watcher, printJsonFile=False):
+def jsonReadWrite(pathToJson, pathWhereToCreateFile, watcher, printJsonFile=False):
     """
     Write csv formatted data into file
     :param path: path where to create file
@@ -34,8 +34,8 @@ def jsonRead(path, watcher, printJsonFile=False):
     :return: return csv formatted string
     :rtype: str
     """
-    res = ""
-    with open(path) as json_file:
+    res = "file generated"
+    with open(pathToJson) as json_file:
         dataDict = json.load(json_file)
 
         if (system() != 'Linux' and system() != 'Windows'):
@@ -45,14 +45,8 @@ def jsonRead(path, watcher, printJsonFile=False):
 
         if printJsonFile:
             print(json.dumps(dataDict, indent=4))
-            # # check
-            # for d in dataDict:
-            #     print('duration: ' + str(d['duration']))
-            #     print('id: ' + str(d['id']))
-            #     print('timestamp: ' + str(d['timestamp']))
-            #     print('data: ' + str(d['data']))
-            #     print('')
 
+        csvFile = open(pathWhereToCreateFile, "w")  # "w" to write strings to the file
 
         if watcher == Watcher.AFK:
             print("watcher == Watcher.AFK")
@@ -76,15 +70,40 @@ def jsonRead(path, watcher, printJsonFile=False):
 
         elif watcher == Watcher.WINDOW:
             print("watcher == Watcher.WINDOW")
-
             # duration: 4.017
             # id: 17
             # timestamp: 2019 - 01 - 28
             # T01: 11:55.570000 + 00: 00
             # data: {'title': 'Terminal - arch@ArchDesktop:~', 'app': 'Xfce4-terminal'} # <= app is the interesting thing
 
+            if printJsonFile:
+                # check
+                for d in dataDict:
+                    print('duration: ' + str(d['duration']))
+                    print('id: ' + str(d['id']))
+                    print('timestamp: ' + str(d['timestamp']))
+                    print('data: ' + str(d['data']))
+                    print('  title: ' + str(d['data']['title']))
+                    print('  app: ' + str(d['data']['app']))
+                    print('')
+
+            columnTitleRow = "app, duration, title, date\n"
+            csvFile.write(columnTitleRow)
+            for d in dataDict:
+                #app
+                row = str(d['data']['app']) + ", "
+                #duration
+                row += str(d['duration']) + ", "
+                #title
+                row += str(d['data']['title']) + ", "
+                #timestamp only beginning: "2019-01-28T01:11:32.482000+00:00"
+                date = str(d['timestamp'])[:10]
+                row += date + "\n"
+
+                csvFile.write(row)
 
         else:
-            print("failed to identify watcher type")
+            res = "failed to identify watcher type"
 
+    print(res)
     return res
